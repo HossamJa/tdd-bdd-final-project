@@ -197,3 +197,57 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(found.count(), count)
         for product in found:
             self.assertEqual(product.category, category)
+    
+    def test_find_by_price(self):
+        """It should Find a Product by Price"""
+        products = ProductFactory.create_batch(5)
+        for product in products:
+            product.create()
+        price = products[0].price
+        count = len([product for product in products if product.price == price])
+        found = Product.find_by_price(price)
+        self.assertEqual(found.count(), count)
+        for product in found:
+            self.assertEqual(product.price, price)
+
+    def test_find_by_str_price(self):
+        """It should Find a Product by Price When it is String"""
+        products = ProductFactory.create_batch(5)
+        for product in products:
+            product.create()
+        price = products[0].price
+        count = len([product for product in products if product.price == price])
+        found = Product.find_by_price(str(price))
+        self.assertEqual(found.count(), count)
+        for product in found:
+            self.assertEqual(product.price, price)      
+
+    def test_deserialize_with_ivalid_type(self):
+        """ It Should Raise DataValidationError When Given Invalid Type For Boolean [available]"""
+        product = Product(name="Fedora", description="A red hat", price=12.50, available=True, category=Category.CLOTHS)
+        dict_data = product.serialize()
+        dict_data["available"] = 50 # Changing the data type from Boolean to an int
+        self.assertRaises(DataValidationError, product.deserialize, dict_data )
+    
+    def test_deserialize_with_invalid_attribute(self):
+        """ It Should Raise DataValidationError When Giving Invalid Attribute"""
+        product = Product(name="Fedora", description="A red hat", price=12.50, available=True, category=Category.CLOTHS)
+        dict_data = product.serialize()
+        dict_data["category"] = "Cloths"  # Giving Hello to Category will Raise AttributeError 
+        self.assertRaises(DataValidationError, product.deserialize, dict_data )
+    
+    def test_deserialize_with_no_key(self):
+        """ It Should Raise DataValidationError When Missing Key/Value"""
+        product = Product(name="Fedora", description="A red hat", price=12.50, available=True, category=Category.CLOTHS)
+        dict_data = product.serialize()
+        del dict_data["name"] # Deleting a key/value that will raise KeyError
+        self.assertRaises(DataValidationError, product.deserialize, dict_data )
+    
+    def test_deserialize_with_empty_data(self):
+        """ It Should Raise DataValidationError When Given Empty data"""
+        product = Product(name="Mice", description="Gaming mice", price=50.50, available=True, category=Category.UNKNOWN)
+        dict_data = product.serialize()
+        dict_data["category"] = None # Givin an Empty Data Will Raise TypeError
+        self.assertRaises(DataValidationError, product.deserialize, dict_data )
+
+  
