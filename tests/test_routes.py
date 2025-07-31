@@ -28,6 +28,7 @@ import os
 import logging
 from decimal import Decimal
 from unittest import TestCase
+from urllib.parse import quote_plus
 from service import app
 from service.common import status
 from service.models import db, init_db, Product
@@ -233,7 +234,7 @@ class TestProductRoutes(TestCase):
 
     # Test List All Products
     def test_list_all_products(self):
-        """I Should List All the Products"""
+        """It Should List All the Products"""
 
         # Create Prodcuts
         self._create_products(7)
@@ -241,6 +242,44 @@ class TestProductRoutes(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), 7)
+
+    # Test List Products By Name
+    def test_list_by_name(self):
+        """It Should List Products by name"""
+        # Create Products
+        products = self._create_products(7)
+        test_name = products[0].name
+        name_count = len([product for product in products if product.name == test_name])
+        
+        response = self.client.get(BASE_URL, query_string=f"name={quote_plus(test_name)}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        data = response.get_json()
+        self.assertEqual(len(data), name_count)
+
+        # check the data just to be sure
+        for product in data:
+            self.assertEqual(product["name"], test_name)
+    
+    # Test List Products By Category
+    def test_list_by_category(self):
+        """It should List Products by Category"""
+        products = self._create_products(10)
+        category = products[0].category
+        found = [product for product in products if product.category == category]
+        found_count = len(found)
+
+        logging.debug(f"Found {found_count} Products: {found} in the Category {category}")
+
+        response = self.client.get(BASE_URL, query_string=f"category={category.name}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.get_json()
+        self.assertEqual(len(data), found_count)
+
+        # check the data just to be sure
+        for product in data:
+            self.assertEqual(product["category"], category.name)
 
     ######################################################################
     # Utility functions

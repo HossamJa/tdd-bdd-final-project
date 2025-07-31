@@ -20,7 +20,7 @@ Product Store Service with UI
 """
 from flask import jsonify, request, abort
 from flask import url_for  # noqa: F401 pylint: disable=unused-import
-from service.models import Product
+from service.models import Product, Category
 from service.common import status  # HTTP Status Codes
 from . import app
 
@@ -91,41 +91,41 @@ def create_products():
 
 
 ######################################################################
-# L I S T   A L L   P R O D U C T S
+# L I S T   P R O D U C T S
 ######################################################################
 @app.route("/products", methods=["GET"])
 def list_all_products():
     """
-    Retrieve all The Products
-    This endpoint will return all the Product
+    Retrieve list of Products
+    This endpoint will return list of Products
     """
     app.logger.info("Request to list Products...")
 
-    products = Product.all()
+    products = []
+    name = request.args.get("name")
+    category = request.args.get("category")
+
+    if name:
+        app.logger.info(f"Find by name: {name}")
+        products = Product.find_by_name(name)
+
+    elif category:
+        app.logger.info(f"Find by category: {category}")
+        category_value = getattr(Category, category.upper())
+        products = Product.find_by_category(category_value)
+
+    else:
+        app.logger.info("Find all")
+        products = Product.all()
+
     results = [product.serialize() for product in products]
     app.logger.info(f"{len(results)} Products returned")
     return results, status.HTTP_200_OK
 
-######################################################################
-# L I S T   B Y   C A T E G O R Y
-######################################################################
-
-######################################################################
-# L I S T   B Y   N A M E
-######################################################################
-
-######################################################################
-# L I S T   B Y   A V A I L A B I L I T Y
-######################################################################
-
-######################################################################
-# L I S T   B Y   P R I C E
-######################################################################
 
 ######################################################################
 # R E A D   A   P R O D U C T
 ######################################################################
-
 
 @app.route("/products/<int:product_id>", methods=["GET"])
 def get_products(product_id):
