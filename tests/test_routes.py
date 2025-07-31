@@ -130,7 +130,7 @@ class TestProductRoutes(TestCase):
         self.assertEqual(new_product["available"], test_product.available)
         self.assertEqual(new_product["category"], test_product.category.name)
 
-        #   Check that the location header was correct
+        # Check that the location header was correct
         response = self.client.get(location)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         new_product = response.get_json()
@@ -159,7 +159,8 @@ class TestProductRoutes(TestCase):
         response = self.client.post(BASE_URL, data={}, content_type="plain/text")
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
-    # ADD YOUR TEST CASES HERE
+    # Test READ
+
     def test_get_product(self):
         """It should Get a Product"""
         # Get the id of a product
@@ -176,6 +177,71 @@ class TestProductRoutes(TestCase):
         data = response.get_json()
         self.assertIn("was not found", data["message"])
 
+    # Test UPDATE an Existing Product
+
+    def test_update(self):
+        """It Should Update an Existing Product"""
+        # Create a Test Product
+        test_product = ProductFactory()
+        logging.debug("Test Product: %s", test_product.serialize())
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Update The test Product
+        new_product = response.get_json()
+        new_product["description"] = "test case for update a product"
+        update_resp = self.client.put(f"{BASE_URL}/{new_product['id']}", json=new_product)
+        self.assertEqual(update_resp.status_code, status.HTTP_200_OK)
+        data = update_resp.get_json()
+        self.assertEqual(data["description"], "test case for update a product")
+
+    def test_update_product_not_found(self):
+        """It should not Updtae a Product thats not found"""
+        # Create a non existed product
+        non_product = {
+            "id": 0,
+            "name": "name",
+            "description": "description",
+            "price": "5.2",
+            "available": True,
+            "category": "Category.UNKNOWN"
+        }
+        response = self.client.put(f"{BASE_URL}/0", json=non_product)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("was not found", data["message"])
+
+    # Test Delete A Product
+    def test_delete_a_product(self):
+        """ It Should Dtelete An Existing Product """
+        # Create Products
+        products = self._create_products(3)
+        init_product_count = self.get_product_count()
+
+        test_product = products[0]
+
+        # Delete the Test Product
+        delete_response = self.client.delete(f"{BASE_URL}/{test_product.id}")
+        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(delete_response.data), 0)
+
+        get_response = self.client.get(f"{BASE_URL}/{test_product.id}")
+        self.assertEqual(get_response.status_code, status.HTTP_404_NOT_FOUND)
+
+        new_product_count = self.get_product_count()
+        self.assertEqual(new_product_count, init_product_count - 1)
+
+    # Test List All Products
+    def test_list_all_products(self):
+        """I Should List All the Products"""
+
+        # Create Prodcuts
+        self._create_products(7)
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), 7)
+
     ######################################################################
     # Utility functions
     ######################################################################
@@ -185,5 +251,5 @@ class TestProductRoutes(TestCase):
         response = self.client.get(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
-        # logging.debug("data = %s", data)
+        logging.debug("data = %s", data)
         return len(data)

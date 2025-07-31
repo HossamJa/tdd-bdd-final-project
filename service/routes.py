@@ -93,29 +93,53 @@ def create_products():
 ######################################################################
 # L I S T   A L L   P R O D U C T S
 ######################################################################
+@app.route("/products", methods=["GET"])
+def list_all_products():
+    """
+    Retrieve all The Products
+    This endpoint will return all the Product
+    """
+    app.logger.info("Request to list Products...")
 
-#
-# PLACE YOUR CODE TO LIST ALL PRODUCTS HERE
-#
+    products = Product.all()
+    results = [product.serialize() for product in products]
+    app.logger.info(f"{len(results)} Products returned")
+    return results, status.HTTP_200_OK
+
+######################################################################
+# L I S T   B Y   C A T E G O R Y
+######################################################################
+
+######################################################################
+# L I S T   B Y   N A M E
+######################################################################
+
+######################################################################
+# L I S T   B Y   A V A I L A B I L I T Y
+######################################################################
+
+######################################################################
+# L I S T   B Y   P R I C E
+######################################################################
 
 ######################################################################
 # R E A D   A   P R O D U C T
 ######################################################################
 
+
 @app.route("/products/<int:product_id>", methods=["GET"])
 def get_products(product_id):
     """
     Retrieve a single Product
-
     This endpoint will return a Product based on it's id
     """
-    app.logger.info("Request to Retrieve a product with id [%s]", product_id)
+    app.logger.info(f"Request to Retrieve a product with id {product_id}")
 
     product = Product.find(product_id)
     if not product:
         abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
 
-    app.logger.info("Returning product: %s", product.name)
+    app.logger.info(f"Returning product: {product.name}")
     return product.serialize(), status.HTTP_200_OK
 
 
@@ -123,15 +147,37 @@ def get_products(product_id):
 # U P D A T E   A   P R O D U C T
 ######################################################################
 
-#
-# PLACE YOUR CODE TO UPDATE A PRODUCT HERE
-#
+@app.route("/products/<int:product_id>", methods=["PUT"])
+def update_a_product(product_id):
+    """
+    Update an Existing Product
+    This endpoint will Update an Existing Product based on
+    the new data in the body that is puted
+    """
+    app.logger.info(f"Request to Update a Product with ID: {product_id}")
+    check_content_type("application/json")
+
+    product = Product.find(product_id)
+    if not product:
+        abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
+    product.deserialize(request.get_json())
+    product.id = product_id
+    product.update()
+    return product.serialize(), status.HTTP_200_OK
 
 ######################################################################
 # D E L E T E   A   P R O D U C T
 ######################################################################
 
 
-#
-# PLACE YOUR CODE TO DELETE A PRODUCT HERE
-#
+@app.route("/products/<int:product_id>", methods=["DELETE"])
+def delete_a_product(product_id):
+    """
+    Delete an Existing Product
+    This endpoint will delete an Existing Product
+    """
+    app.logger.info(f"Request to Delete a Product with ID: {product_id}")
+    product = Product.find(product_id)
+    if product:
+        product.delete()
+    return "", status.HTTP_204_NO_CONTENT
