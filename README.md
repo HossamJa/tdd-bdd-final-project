@@ -42,30 +42,6 @@ Over the course of this project, I completed the following:
 
 ---
 
-## 📊 Test Results
-
-### ✔️ `nosetests` Output
-```
-Ran 32 tests in 1.589s
-
-OK
-```
-
-| File                             | Statements | Missed | Coverage |
-|----------------------------------|------------|--------|----------|
-| service/models.py                | 92         | 0      | 100%     |
-| service/routes.py                | 82         | 0      | 100%     |
-| service/common/*.py              | All > 82%  |        |          |
-| **Total**                        | **319**    | **10** | **97%**  |
-
----
-
-### ✔️ `make lint` Output
-```
-Your code has been rated at 10.00/10
-0 flake8 errors
-```
-
 ---
 
 ## 📁 Project Structure
@@ -93,20 +69,24 @@ Your code has been rated at 10.00/10
 
 ---
 
-## 📷 Screenshots
-**Exercise 2: Product Model Testing**
+## 📊 Test Results 📷 Screenshots
+### Exercise 2: Product Model Testing
+
+**nosetests && make lint Output**
 
 <img width="652" height="266" alt="make lint for Exercise 2" src="https://github.com/user-attachments/assets/7627e654-6048-4162-ad98-11f34e46dbcf" />
 
-* Ater Comleted The Tasks
+* Ater Complting The Tasks:
   
 <img width="862" height="561" alt="Excercise 2 Completed  nosetests and make lint" src="https://github.com/user-attachments/assets/c2668e94-6601-4bc6-93e4-f9724dd64ce4" />
 
-**Exercise 3: REST API**
+### Exercise 3: REST APIs
+
+**nosetests && make lint Output**
 
 <img width="904" height="566" alt="Excercise 3 Completed TDD" src="https://github.com/user-attachments/assets/7b759255-8931-4cc0-ba6a-51154ed94a15" />
 
-**Exercise 6: BDD Step Definitions**
+### Exercise 6: After Writing BDD Step Definitions
 
 <img width="930" height="422" alt="Excercise 6 BDD all scenarios exist and pass" src="https://github.com/user-attachments/assets/b81677c4-6dd5-41c8-9d5b-88d38d23266a" />
 
